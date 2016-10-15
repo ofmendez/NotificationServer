@@ -1,10 +1,7 @@
 package com.notifications.server;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /// <summary>
 /// Very simple registration of devices on a server side (storing pairs of push notifications system provider & registrationId).
@@ -12,27 +9,47 @@ import java.util.List;
 /// <remarks>
 /// You should use some database instead in production.
 /// </remarks>
-class Registrator {
+public class Registrator {
 
     private static String DB_FILE_NAME;
-    private static final HashMap<String, Item> m_registration;
-    private static HashMap<String, OAuth2Token> m_oath2Tokens;
+    private static final Map<String, Item> m_registration;
+    private static final Map<String, OAuth2Token> m_oath2Tokens;
 
-    static class Item implements Serializable {
+    static {
+        Map<String, Item> registration = new HashMap<>();
+        Map<String, OAuth2Token> oath2Tokens = new HashMap<>();
+
+        try (FileInputStream fileStream = new FileInputStream(DB_FILE_NAME = "utnotifications_reg.db");
+             ObjectInputStream stream = new ObjectInputStream(fileStream)) {
+
+            registration = readObjectAsHashMap(stream);
+            oath2Tokens = readObjectAsHashMap(stream);
+        } catch (FileNotFoundException e) {
+            //It's OK!
+        } catch (Throwable t) {
+            t.printStackTrace();
+        } finally {
+            m_registration = registration != null ? registration : new HashMap<>();
+            m_oath2Tokens = oath2Tokens != null ? oath2Tokens : new HashMap<>();
+        }
+    }
+
+    public static class Item implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         final String provider;
         private String m_id;
-        private static final long serialVersionUID = 1L;
 
         Item(String provider, String id) {
             this.provider = provider;
             m_id = id;
         }
 
-        String getId() {
+        public String getId() {
             return m_id;
         }
 
-        void setId(String id) {
+        public void setId(String id) {
             m_id = id;
             save();
         }
@@ -51,7 +68,7 @@ class Registrator {
         }
     }
 
-    static String getOAuth2Token(String provider) {
+    public static String getOAuth2Token(String provider) {
         if (m_oath2Tokens.containsKey(provider)) {
             return m_oath2Tokens.get(provider).getToken();
         } else {
@@ -59,40 +76,11 @@ class Registrator {
         }
     }
 
-    static void setOAuth2Token(String provider, String token, Date tokenExpires) {
+    public static void setOAuth2Token(String provider, String token, Date tokenExpires) {
         m_oath2Tokens.put(provider, new OAuth2Token(token, tokenExpires));
         save();
     }
 
-    //private
-    static {
-        ObjectInputStream stream = null;
-        HashMap<String, Item> registration = null;
-        HashMap<String, Registrator.OAuth2Token> oath2Tokens = null;
-
-        try {
-            FileInputStream fileStream = new FileInputStream(DB_FILE_NAME = "utnotifications_reg.db");
-            stream = new ObjectInputStream(fileStream);
-
-            registration = (HashMap<String, Item>) stream.readObject();
-            oath2Tokens = (HashMap<String, Registrator.OAuth2Token>) stream.readObject();
-        } catch (FileNotFoundException e) {
-            //It's OK!
-        } catch (Throwable t) {
-            t.printStackTrace();
-        } finally {
-            m_registration = registration != null ? registration : new HashMap<>();
-            m_oath2Tokens = oath2Tokens != null ? oath2Tokens : new HashMap<>();
-
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            }
-        }
-    }
 
     private static void save() {
         ObjectOutputStream stream = null;
@@ -116,6 +104,8 @@ class Registrator {
     }
 
     private static class OAuth2Token implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         final String token;
         final Date tokenExpires;
 
@@ -131,8 +121,16 @@ class Registrator {
                 return null;
             }
         }
-
-        private static final long serialVersionUID = 1L;
     }
 
+    @SuppressWarnings("unchecked")
+    private static <K, V> Map<K, V> readObjectAsHashMap(ObjectInputStream o) {
+        try {
+            return (HashMap<K, V>) o.readObject();
+        } catch (ClassNotFoundException e) {
+            return new HashMap<>();
+        } catch (IOException e) {
+            throw new IllegalStateException("can not read object: ", e);
+        }
+    }
 }

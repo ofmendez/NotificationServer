@@ -125,11 +125,7 @@ class SocketProcessor implements Runnable {
                 HashMap<String, String> argsMap = conentAsArgumentsMap();
                 int id = -1;
                 if (argsMap.containsKey("id")) {
-                    try {
-                        id = Integer.parseInt(argsMap.get("id"));
-                    } catch (Throwable e) {
-                        throw new IllegalStateException("error: ", e);
-                    }
+                    id = Integer.parseInt(argsMap.get("id"));
                 }
 
                 String title = argsMap.get("title");
@@ -138,11 +134,7 @@ class SocketProcessor implements Runnable {
 
                 int badge = -1;
                 if (argsMap.containsKey("badge")) {
-                    try {
-                        badge = Integer.parseInt(argsMap.get("badge"));
-                    } catch (Throwable e) {
-                        throw new IllegalStateException("error: ", e);
-                    }
+                    badge = Integer.parseInt(argsMap.get("badge"));
                 }
 
                 int count = PushNotificator.notifyAll(id, title, text, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), notificationProfile, badge);
