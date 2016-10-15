@@ -1,4 +1,4 @@
-package DemoServer;
+package demo.server;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -14,9 +14,10 @@ import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.bind.DatatypeConverter;
 
-import org.json.*;
 
 import com.notnoop.apns.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /// <summary>
 /// The sample class showing how you can send push notifications for different "providers", such as APNS, FCM, ADM and WNS.

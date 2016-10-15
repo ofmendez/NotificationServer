@@ -1,4 +1,4 @@
-package DemoServer;
+package demo.server;
 
 import java.net.InetAddress;
 import java.net.ServerSocket;
