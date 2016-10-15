@@ -24,7 +24,7 @@ import com.notnoop.apns.*;
 public class PushNotificator {
 //private
 	//Please provide the required values. Find more details in the manual.
-	private static final String FIREBASE_SERVER_KEY = "AIzaSyB6jGuOqSovJyyuWWZuSxkZ_9P1AS1dlNQ";
+	private static final String FIREBASE_SERVER_KEY = "AIzaSyBK9IP1BeKpFtYkqjoH8O2FdE4AYXIRdW8";
 	private static final String AMAZON_CLIENT_ID = null;
 	private static final String AMAZON_CLIENT_SECRET = null;
 	private static final String APN_CERT_PATH = null;
@@ -52,7 +52,7 @@ public class PushNotificator {
 		LinkedList<Registrator.Item> wnsItems = new LinkedList<Registrator.Item>();
 		
 		for (Registrator.Item item : items) {
-			System.out.println(" PUTA MIERDA RECORRIENDO ITEM REGISTRADO uuuu -------");
+			System.out.println(" RECORRIENDO ITEM REGISTRADO-------");
 			if ("FCM".equals(item.provider) || "GooglePlay".equals(item.provider)) {
 				fcmItems.add(item);
 			} else if ("ADM".equals(item.provider) || "Amazon".equals(item.provider)) {
