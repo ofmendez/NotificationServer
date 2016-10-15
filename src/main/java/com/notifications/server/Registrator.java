@@ -12,47 +12,46 @@ import java.util.List;
 /// <remarks>
 /// You should use some database instead in production.
 /// </remarks>
-public class Registrator {
-    //public
-    public static class Item implements Serializable {
-        //public
-        public Item(String provider, String id) {
+class Registrator {
+
+    private static String DB_FILE_NAME;
+    private static final HashMap<String, Item> m_registration;
+    private static HashMap<String, OAuth2Token> m_oath2Tokens;
+
+    static class Item implements Serializable {
+        final String provider;
+        private String m_id;
+        private static final long serialVersionUID = 1L;
+
+        Item(String provider, String id) {
             this.provider = provider;
             m_id = id;
         }
 
-        public String getId() {
+        String getId() {
             return m_id;
         }
 
-        public void setId(String id) {
+        void setId(String id) {
             m_id = id;
-
             save();
         }
-
-        public final String provider;
-
-        //private
-        private String m_id;
-
-        private static final long serialVersionUID = 1L;
     }
 
-    public static void register(String uid, String provider, String id) {
+    static void register(String uid, String provider, String id) {
         synchronized (m_registration) {
             m_registration.put(uid, new Item(provider, id));
             save();
         }
     }
 
-    public static List<Item> items() {
+    static List<Item> items() {
         synchronized (m_registration) {
-            return new ArrayList<Item>(m_registration.values());
+            return new ArrayList<>(m_registration.values());
         }
     }
 
-    public static String getOAuth2Token(String provider) {
+    static String getOAuth2Token(String provider) {
         if (m_oath2Tokens.containsKey(provider)) {
             return m_oath2Tokens.get(provider).getToken();
         } else {
@@ -60,7 +59,7 @@ public class Registrator {
         }
     }
 
-    public static void setOAuth2Token(String provider, String token, Date tokenExpires) {
+    static void setOAuth2Token(String provider, String token, Date tokenExpires) {
         m_oath2Tokens.put(provider, new OAuth2Token(token, tokenExpires));
         save();
     }
@@ -82,8 +81,8 @@ public class Registrator {
         } catch (Throwable t) {
             t.printStackTrace();
         } finally {
-            m_registration = registration != null ? registration : new HashMap<String, Item>();
-            m_oath2Tokens = oath2Tokens != null ? oath2Tokens : new HashMap<String, OAuth2Token>();
+            m_registration = registration != null ? registration : new HashMap<>();
+            m_oath2Tokens = oath2Tokens != null ? oath2Tokens : new HashMap<>();
 
             if (stream != null) {
                 try {
@@ -117,15 +116,15 @@ public class Registrator {
     }
 
     private static class OAuth2Token implements Serializable {
-        public final String token;
-        public final Date tokenExpires;
+        final String token;
+        final Date tokenExpires;
 
-        public OAuth2Token(String token, Date tokenExpires) {
+        OAuth2Token(String token, Date tokenExpires) {
             this.token = token;
             this.tokenExpires = tokenExpires;
         }
 
-        public String getToken() {
+        String getToken() {
             if (tokenExpires != null && tokenExpires.after(new Date())) {
                 return token;
             } else {
@@ -136,7 +135,4 @@ public class Registrator {
         private static final long serialVersionUID = 1L;
     }
 
-    private static String DB_FILE_NAME;
-    private static HashMap<String, Item> m_registration;
-    private static HashMap<String, OAuth2Token> m_oath2Tokens;
 }

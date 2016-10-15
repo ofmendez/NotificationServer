@@ -19,7 +19,7 @@ import java.util.List;
 /// <summary>
 /// The sample class showing how you can send push notifications for different "providers", such as APNS, FCM, ADM and WNS.
 /// </summary>
-public class PushNotificator {
+class PushNotificator {
     //private
     //Please provide the required values. Find more details in the manual.
     private static final String FIREBASE_SERVER_KEY = "AIzaSyB6jGuOqSovJyyuWWZuSxkZ_9P1AS1dlNQ";
@@ -29,25 +29,28 @@ public class PushNotificator {
     private static final String APN_CERT_PASSWORD = null;
     private static final String WINDOWS_PACKAGE_SID = null;
     private static final String WINDOWS_CLIENT_SECRET = null;
+    private static final String DEFAULT_CHARSET = "UTF-8";
+    private static final String TOKEN_EXPIRED = "TOKEN_EXPIRED";
+    private static ApnsService m_apnsService = null;
 
     //public
     /// <summary>
     /// Sends a push notification to every registered device.
     /// </summary>
-    public static int notifyAll(int id, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
+    static int notifyAll(int id, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
         return notifyItems(id, Registrator.items(), title, text, serverMessage, notificationProfile, badge);
     }
 
     /// <summary>
     /// Sends a push notification to every device in <c>items</c> list.
     /// </summary>
-    public static int notifyItems(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
+    private static int notifyItems(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
         int notified = 0;
 
-        LinkedList<Registrator.Item> fcmItems = new LinkedList<Registrator.Item>();
-        LinkedList<Registrator.Item> admItems = new LinkedList<Registrator.Item>();
-        LinkedList<Registrator.Item> apnsItems = new LinkedList<Registrator.Item>();
-        LinkedList<Registrator.Item> wnsItems = new LinkedList<Registrator.Item>();
+        LinkedList<Registrator.Item> fcmItems = new LinkedList<>();
+        LinkedList<Registrator.Item> admItems = new LinkedList<>();
+        LinkedList<Registrator.Item> apnsItems = new LinkedList<>();
+        LinkedList<Registrator.Item> wnsItems = new LinkedList<>();
 
         for (Registrator.Item item : items) {
             System.out.println(" --- RECORRIENDO ITEM REGISTRADO-------");
@@ -80,21 +83,20 @@ public class PushNotificator {
     /// <c>serverMessage = java.net.URLEncoder.encode(serverMessage);</c>
     /// See also: https://firebase.google.com/docs/cloud-messaging/http-server-ref#downstream
     /// </remarks>
-    @SuppressWarnings("deprecation")
-    public static int notifyFCM(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
+    private static int notifyFCM(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
         System.out.println(" ENTRA AL FCM");
-        if (items == null || items.size() == 0 || FIREBASE_SERVER_KEY == null) {
+        if (items == null || items.size() == 0) {
             System.out.println(" ERRORES O NO HAY ITEMS O NO ENCUENTRA EL KEY");
             return 0;
         }
 
-        title = java.net.URLEncoder.encode(title);
-        text = java.net.URLEncoder.encode(text);
-        serverMessage = java.net.URLEncoder.encode(serverMessage);
+        title = java.net.URLEncoder.encode(title, DEFAULT_CHARSET);
+        text = java.net.URLEncoder.encode(text, DEFAULT_CHARSET);
+        serverMessage = java.net.URLEncoder.encode(serverMessage, DEFAULT_CHARSET);
 
         //Request data json by default should look like:
         /*
-		{
+        {
 			"registration_ids":["<id1>", ...], <or "to":"id1",>
 			"data":
 			{
@@ -161,15 +163,14 @@ public class PushNotificator {
     /// <c>serverMessage = java.net.URLEncoder.encode(serverMessage);</c>
     /// See also: https://developer.amazon.com/public/apis/engage/device-messaging/tech-docs/06-sending-a-message
     /// </remarks>
-    @SuppressWarnings("deprecation")
-    public static int notifyADM(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
-        if (items == null || items.size() == 0 || AMAZON_CLIENT_ID == null || AMAZON_CLIENT_SECRET == null) {
+    private static int notifyADM(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
+        if (items.size() == 0 || AMAZON_CLIENT_ID == null || AMAZON_CLIENT_SECRET == null) {
             return 0;
         }
 
-        title = java.net.URLEncoder.encode(title);
-        text = java.net.URLEncoder.encode(text);
-        serverMessage = java.net.URLEncoder.encode(serverMessage);
+        title = java.net.URLEncoder.encode(title, DEFAULT_CHARSET);
+        text = java.net.URLEncoder.encode(text, DEFAULT_CHARSET);
+        serverMessage = java.net.URLEncoder.encode(serverMessage, DEFAULT_CHARSET);
 
         String token = oauth2GetAuthToken("Amazon", "https://api.amazon.com/auth/O2/token", "messaging:push", AMAZON_CLIENT_ID, AMAZON_CLIENT_SECRET, false);
 
@@ -179,7 +180,7 @@ public class PushNotificator {
             try {
                 String regId = amazonSendMessageToDevice(it.getId(), token, id, title, text, serverMessage, notificationProfile, badge);
 
-                if (!tokenUpdated && TOKEN_EXPIRED.equals(id)) {
+                if (!tokenUpdated && TOKEN_EXPIRED.equals(Integer.toString(id))) {
                     token = oauth2GetAuthToken("Amazon", "https://api.amazon.com/auth/O2/token", "messaging:push", AMAZON_CLIENT_ID, AMAZON_CLIENT_SECRET, true);
                     tokenUpdated = true;
 
@@ -206,8 +207,8 @@ public class PushNotificator {
     /// <seealso cref="UTNotifications.Manager.OnSendRegistrationId"/>
     /// See also: https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/CommunicatingWIthAPS.html.
     /// </remarks>
-    public static int notifyAPNS(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
-        if (items == null || items.size() == 0 || APN_CERT_PATH == null || APN_CERT_PASSWORD == null) {
+    private static int notifyAPNS(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
+        if (items.size() == 0 || APN_CERT_PATH == null || APN_CERT_PASSWORD == null) {
             return 0;
         }
 
@@ -221,9 +222,9 @@ public class PushNotificator {
             }
         }
 
-        ArrayList<byte[]> tokens = new ArrayList<byte[]>(items.size());
-        for (int i = 0; i < items.size(); ++i) {
-            tokens.add(decodeToken(items.get(i).getId()));
+        ArrayList<byte[]> tokens = new ArrayList<>(items.size());
+        for (Registrator.Item item : items) {
+            tokens.add(decodeToken(item.getId()));
         }
 
         String sound;
@@ -241,7 +242,7 @@ public class PushNotificator {
                 .badge(badge);
 
         if (id >= 0) {
-            payload.customField("id", new Integer(id).toString());
+            payload.customField("id", Integer.toString(id));
         }
 
         if (badge >= 0) {
@@ -263,15 +264,14 @@ public class PushNotificator {
     /// <c>serverMessage = java.net.URLEncoder.encode(serverMessage);</c><br><br>
     /// See also: https://msdn.microsoft.com/en-us/library/windows/apps/hh465435.aspx
     /// </remarks>
-    @SuppressWarnings("deprecation")
-    public static int notifyWNS(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
+    private static int notifyWNS(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) throws Throwable {
         if (items == null || items.size() == 0) {
             return 0;
         }
 
-        title = java.net.URLEncoder.encode(title);
-        text = java.net.URLEncoder.encode(text);
-        serverMessage = java.net.URLEncoder.encode(serverMessage);
+        title = java.net.URLEncoder.encode(title, DEFAULT_CHARSET);
+        text = java.net.URLEncoder.encode(text, DEFAULT_CHARSET);
+        serverMessage = java.net.URLEncoder.encode(serverMessage, DEFAULT_CHARSET);
 
         String token = oauth2GetAuthToken("Windows", "https://login.live.com/accesstoken.srf", "notify.windows.com", WINDOWS_PACKAGE_SID, WINDOWS_CLIENT_SECRET, false);
 
@@ -281,7 +281,7 @@ public class PushNotificator {
             try {
                 String regId = notifyWindows(token, it.getId(), id, title, text, serverMessage, notificationProfile, badge);
 
-                if (!tokenUpdated && TOKEN_EXPIRED.equals(id)) {
+                if (!tokenUpdated && TOKEN_EXPIRED.equals(Integer.toString(id))) {
                     token = oauth2GetAuthToken("Windows", "https://login.live.com/accesstoken.srf", "notify.windows.com", WINDOWS_PACKAGE_SID, WINDOWS_CLIENT_SECRET, true);
                     tokenUpdated = true;
 
@@ -428,7 +428,7 @@ public class PushNotificator {
     }
 
     private static JSONObject prepareData(int id, String title, String text, String serverMessage, String notificationProfile, int badge) {
-		/*
+        /*
 			"data":
 			{
 				"title":"<Title>",
@@ -442,7 +442,7 @@ public class PushNotificator {
 
         JSONObject data = new JSONObject();
         if (id >= 0) {
-            data.put("id", new Integer(id).toString());
+            data.put("id", Integer.toString(id));
         }
         data.put("title", title);
         data.put("text", text);
@@ -451,7 +451,7 @@ public class PushNotificator {
             data.put("notification_profile", notificationProfile);
         }
         if (badge >= 0) {
-            data.put("badge_number", new Integer(badge).toString());
+            data.put("badge_number", Integer.toString(badge));
         }
 
         return data;
@@ -466,10 +466,10 @@ public class PushNotificator {
         }
 
         //Encode the body of your request, including your clientID and clientSecret values.
-        String body = "grant_type=" + java.net.URLEncoder.encode("client_credentials", "UTF-8") + "&" +
-                "scope=" + java.net.URLEncoder.encode(scope, "UTF-8") + "&" +
-                "client_id=" + java.net.URLEncoder.encode(clientId, "UTF-8") + "&" +
-                "client_secret=" + java.net.URLEncoder.encode(clientSecret, "UTF-8");
+        String body = "grant_type=" + java.net.URLEncoder.encode("client_credentials", DEFAULT_CHARSET) + "&" +
+                "scope=" + java.net.URLEncoder.encode(scope, DEFAULT_CHARSET) + "&" +
+                "client_id=" + java.net.URLEncoder.encode(clientId, DEFAULT_CHARSET) + "&" +
+                "client_secret=" + java.net.URLEncoder.encode(clientSecret, DEFAULT_CHARSET);
 
         //Create a new URL object with the base URL for the access token request.
         URL authUrl = new URL(url);
@@ -481,11 +481,11 @@ public class PushNotificator {
 
         //Set the Content-Type header.
         con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        con.setRequestProperty("Charset", "UTF-8");
+        con.setRequestProperty("Charset", DEFAULT_CHARSET);
 
         //Send the encoded parameters on the connection.
         OutputStream os = con.getOutputStream();
-        os.write(body.getBytes("UTF-8"));
+        os.write(body.getBytes(DEFAULT_CHARSET));
         os.flush();
         con.connect();
 
@@ -508,7 +508,7 @@ public class PushNotificator {
     }
 
     private static String readResponse(InputStream in) throws Exception {
-        InputStreamReader inputStream = new InputStreamReader(in, "UTF-8");
+        InputStreamReader inputStream = new InputStreamReader(in, DEFAULT_CHARSET);
         BufferedReader buff = new BufferedReader(inputStream);
 
         StringBuilder sb = new StringBuilder();
@@ -542,6 +542,4 @@ public class PushNotificator {
         return data;
     }
 
-    private static final String TOKEN_EXPIRED = "TOKEN_EXPIRED";
-    private static ApnsService m_apnsService = null;
 }
