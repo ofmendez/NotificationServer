@@ -1,5 +1,6 @@
 package demo.server;
 
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -14,10 +15,9 @@ import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.bind.DatatypeConverter;
 
+import org.json.*;
 
 import com.notnoop.apns.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /// <summary>
 /// The sample class showing how you can send push notifications for different "providers", such as APNS, FCM, ADM and WNS.
@@ -25,7 +25,7 @@ import org.json.JSONObject;
 public class PushNotificator {
 //private
 	//Please provide the required values. Find more details in the manual.
-	private static final String FIREBASE_SERVER_KEY = "AIzaSyBK9IP1BeKpFtYkqjoH8O2FdE4AYXIRdW8";
+	private static final String FIREBASE_SERVER_KEY = "AIzaSyB6jGuOqSovJyyuWWZuSxkZ_9P1AS1dlNQ";
 	private static final String AMAZON_CLIENT_ID = null;
 	private static final String AMAZON_CLIENT_SECRET = null;
 	private static final String APN_CERT_PATH = null;
@@ -53,7 +53,7 @@ public class PushNotificator {
 		LinkedList<Registrator.Item> wnsItems = new LinkedList<Registrator.Item>();
 		
 		for (Registrator.Item item : items) {
-			System.out.println(" RECORRIENDO ITEM REGISTRADO-------");
+			System.out.println(" puta RECORRIENDO ITEM REGISTRADO-------");
 			if ("FCM".equals(item.provider) || "GooglePlay".equals(item.provider)) {
 				fcmItems.add(item);
 			} else if ("ADM".equals(item.provider) || "Amazon".equals(item.provider)) {
