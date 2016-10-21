@@ -12,7 +12,7 @@ import java.util.List;
 public class AppleNotifier extends Notifier {
 
     private static ApnsService m_apnsService = null;
-    private static final String APN_CERT_PATH = "Certificados.p12";
+    private static final String APN_CERT_PATH = "CertificadosB.p12";
     private static final String APN_CERT_PASSWORD = "supernicewise";
 
     /// <summary>
