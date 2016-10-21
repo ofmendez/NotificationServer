@@ -12,8 +12,8 @@ import java.util.List;
 public class AppleNotifier extends Notifier {
 
     private static ApnsService m_apnsService = null;
-    private static final String APN_CERT_PATH = null;
-    private static final String APN_CERT_PASSWORD = null;
+    private static final String APN_CERT_PATH = "Certificados.p12";
+    private static final String APN_CERT_PASSWORD = "supernicewise";
 
     /// <summary>
     /// Sends a push notification to iOS devices. com.notnoop.apns library is used for it (its source code is provided).
