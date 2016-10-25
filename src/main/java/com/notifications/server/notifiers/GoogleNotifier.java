@@ -26,9 +26,9 @@ public class GoogleNotifier extends Notifier {
     /// See also: https://firebase.google.com/docs/cloud-messaging/http-server-ref#downstream
     /// </remarks>
     public int notifyFCM(int id, List<Registrator.Item> items, String title, String text, String serverMessage, String notificationProfile, int badge) {
-        System.out.println(" ENTRA AL FCM");
+        // System.out.println(" ENTRA AL FCM");
         if (items == null || items.size() == 0) {
-            System.out.println(" ERRORES O NO HAY ITEMS O NO ENCUENTRA EL KEY");
+            // System.out.println(" ERRORES O NO HAY ITEMS O NO ENCUENTRA EL KEY");
             return 0;
         }
 

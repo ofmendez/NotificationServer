@@ -12,7 +12,7 @@ import java.util.List;
 public class AppleNotifier extends Notifier {
 
     private static ApnsService m_apnsService = null;
-    private static final String APN_CERT_PATH = "CertificadosB.p12";
+    private static final String APN_CERT_PATH = "CertificadosFF.p12";
     private static final String APN_CERT_PASSWORD = "supernicewise";
 
     /// <summary>
@@ -31,7 +31,7 @@ public class AppleNotifier extends Notifier {
         if (m_apnsService == null) {
             try {
                 //Creates and sets up the ApnsService instance. Note that you don't need to use withSandboxDestination() in production.
-                m_apnsService = APNS.newService().withCert(APN_CERT_PATH, APN_CERT_PASSWORD).withSandboxDestination().build();
+                m_apnsService = APNS.newService().withCert(APN_CERT_PATH, APN_CERT_PASSWORD).withAppleDestination(true).build();
             } catch (Throwable e) {
                 System.err.println("Unable to initialize ApnsService. Please check if APN_CERT_PATH & APN_CERT_PASSWORD values are correct");
                 throw e;

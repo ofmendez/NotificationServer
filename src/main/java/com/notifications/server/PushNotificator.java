@@ -33,7 +33,7 @@ class PushNotificator {
         LinkedList<Registrator.Item> wnsItems = new LinkedList<>();
 
         for (Registrator.Item item : items) {
-            System.out.println(" --- RECORRIENDO ITEM REGISTRADO-------");
+            // System.out.println(" --- RECORRIENDO ITEM REGISTRADO-------");
             if ("FCM".equals(item.provider) || "GooglePlay".equals(item.provider)) {
                 fcmItems.add(item);
             } else if ("ADM".equals(item.provider) || "Amazon".equals(item.provider)) {

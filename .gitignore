@@ -10,6 +10,7 @@ buildNumber.properties
 /bin/
 .classpath
 .project
+.p12
 *.jar
 .idea/
 *.iml
