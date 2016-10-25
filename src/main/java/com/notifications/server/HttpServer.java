@@ -11,7 +11,7 @@ import java.net.Socket;
  */
 public class HttpServer {
 
-    private static int PORT = 8080;
+    private static int PORT = 80;
 
     public static void main(String[] args) throws Throwable {
         System.out.println("The demo server is running as http://" + InetAddress.getLocalHost().getHostAddress() + ":" + PORT);

@@ -1,1 +1,1 @@
-java -jar target/notifications-server-0.1.0.jar --port 80
+java -jar target/notifications-server-0.1.0.jar
